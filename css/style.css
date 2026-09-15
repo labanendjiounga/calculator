@@ -12,3 +12,55 @@ html {
 	margin: 0;
 	padding: 0;
 }
+
+body,
+.main,
+.display,
+.container,
+.buttons {
+	display: flex;
+}
+
+body,
+.main,
+.container {
+	flex-direction: column;
+}
+
+.display,
+.container,
+.buttons,
+button {
+	flex: 1;
+}
+
+.main,
+.container,
+.buttons {
+	gap: 4px;
+}
+
+body {
+	justify-content: center;
+	align-items: center;
+	gap: 16px;
+	padding-top: 16px;
+}
+
+.main,
+.display {
+	border: 1px, solid black;
+	border-radius: 2px;
+}
+
+.main { 
+	height: 480px;
+	width: 270px;
+	padding: 4px;
+}
+
+.display {
+	justify-content: flex-end;
+	overflow: clip;
+	padding: 0 2px;
+}

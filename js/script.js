@@ -42,6 +42,8 @@ function operate(operator, a, b) {
 function updateOperator(sign) {
   if(sign == "÷") {
     operator = "/";
+  } else if(sign == "x") {
+    operator = "*";
   } else {
     operator = sign;
   }
@@ -63,6 +65,12 @@ function updateNumbers(number) {
   }
 }
 
+function calculate() {
+  const a = Number(firstNumber);
+  const b = Number(secondNumber);
+  updateDisplay(operate(operator, a, b));
+}
+
 const buttons = document.querySelectorAll("button");
 buttons.forEach(button => {
   button.addEventListener("click", e => {
@@ -78,6 +86,10 @@ buttons.forEach(button => {
     
     if("0123456789".includes(button.textContent)) {
       updateNumbers(button.textContent);
+    }
+
+    if(button.textContent == "=") {
+      calculate();
     }
   });
 });

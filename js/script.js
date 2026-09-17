@@ -14,82 +14,110 @@ function divide(a, b) {
   return a / b;
 }
 
+let operator = "";
 let firstNumber = "";
 let secondNumber = "";
-let operator = "";
 
-function operate(operator, a, b) {
-  let result = 0;
-
+function operate(operator, firstNumber, secondNumber) {
+  const a = Number(firstNumber);
+  const b = Number(secondNumber);
+  let result = "";
+  
   switch(operator) {
     case "+":
-      result = add(a,b);
+      result = String(add(a, b));
       break;
     case "-":
-      result = subtract(a,b);
+      result = String(subtract(a, b));
       break;
     case "*":
-      result = multiply(a,b);
+      result = String(multiply(a, b));
       break;
     case "/":
-      result = divide(a,b);
-      break;
+      if(b == 0) {
+        result = "Math Error";
+      } else {
+        result = String(divide(a, b));
+      }
   }
-  
+
   return result;
 }
 
-function updateOperator(sign) {
-  if(sign == "÷") {
-    operator = "/";
-  } else if(sign == "x") {
-    operator = "*";
+function storeNumbers(userInput) {
+  const display = document.querySelector(".display");
+  if(display.textContent == "Math Error") return;
+  
+  if(!operator) {
+    if(firstNumber == "0") firstNumber = "";
+    firstNumber += userInput;
+    updateDisplay(firstNumber);
+    console.log(`firstNumber: ${firstNumber}`);
   } else {
-    operator = sign;
+    if(secondNumber == "0") secondNumber = "";
+    secondNumber += userInput;
+    updateDisplay(secondNumber);
+    console.log(`secondNumber: ${secondNumber}`);
   }
 }
 
 function updateDisplay(text) {
-  const display = document.querySelector(".display");
-  display.textContent = "";
-  display.textContent = text;
+  document
+    .querySelector(".display").textContent = ""
+    .textContent = text;
 }
 
-function updateNumbers(number) {
-  if(operator == "") {
-    firstNumber += number;
-    updateDisplay(firstNumber);
-  } else {
-    secondNumber += number;
-    updateDisplay(secondNumber);
+function handleOperators(userInput) {
+  if(firstNumber && secondNumber) {
+    const result = calculate();
+    if(result == "Math Error") return;
+    
+    firstNumber = result
+    console.log(`firstNumber: ${firstNumber}`);
+    secondNumber = "";
   }
+
+  if(userInput == "÷") {
+    operator = "/";
+  } else if(userInput == "x") {
+    operator = "*";
+  } else {
+    operator = userInput;
+  }
+  console.log(`operator: ${operator}`)
 }
 
 function calculate() {
-  const a = Number(firstNumber);
-  const b = Number(secondNumber);
-  updateDisplay(operate(operator, a, b));
+  if(!firstNumber || !secondNumber) return;
+  
+  const result = operate(operator, firstNumber, secondNumber);
+  updateDisplay(result);
+  console.log(`result: ${result}`);
+  return result;
+}
+
+function clearAll() {
+  document
+    .querySelector(".display")
+    .textContent = "0";
+  
+  operator = "";
+  firstNumber = "";
+  secondNumber = "";
 }
 
 const buttons = document.querySelectorAll("button");
 buttons.forEach(button => {
   button.addEventListener("click", e => {
-    const button = e.target;
+    const userInput = e.target.textContent;
     
-    if(firstNumber == "" && secondNumber == "" && button.textContent == "0") {
-      return;
-    }
-
-    if("+-x÷".includes(button.textContent)) {
-      updateOperator(button.textContent);
+    if(userInput == "CA") return clearAll();
+    if(userInput == "=") return calculate();
+    
+    if("+-x÷".includes(userInput)) {
+      return handleOperators(userInput);
     }
     
-    if("0123456789".includes(button.textContent)) {
-      updateNumbers(button.textContent);
-    }
-
-    if(button.textContent == "=") {
-      calculate();
-    }
+    return storeNumbers(userInput);
   });
 });

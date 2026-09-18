@@ -99,7 +99,8 @@ function handleDigits(input) {
 function handleSymbols(input) {
   if(isMathError()) return;
   
-  if((!operator && !firstNumber && !secondNumber && getDisplay() != "0" && getDisplay() != "Math Error")) {
+  if((!operator && !firstNumber && !secondNumber &&
+    getDisplay() != "0" && getDisplay() != "Math Error")) {
     firstNumber = getDisplay();
     console.log(`firstNumber: ${firstNumber}`);
     console.log(`operator: ${operator}`);

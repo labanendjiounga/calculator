@@ -47,11 +47,16 @@ function operate(operator, firstNumber, secondNumber) {
       let decimalPart = result.slice(result.indexOf(".") + 1);
       console.log(`decimalPart: ${decimalPart}`);
       if(decimalPart.length >= 10) {
-        result = String(Number(result).toFixed(5));
+        if(result.includes("e")) {
+          result = String(Number(result).toExponential(5));
+        } else {
+          result = String(Number(result).toFixed(5));
+        }
+        console.log(`result: ${result}`);
       }
     } else {
       if(result.length > 10) {
-        result = String(Number(result).toExponential());
+        result = String(Number(result).toExponential(5));
       }
     }  
   }

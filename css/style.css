@@ -26,6 +26,7 @@ body,
 .display,
 .container,
 .buttons,
+.ac-ce,
 .copyright {
 	display: flex;
 }
@@ -43,6 +44,7 @@ body,
 
 .container,
 .buttons,
+.ac-ce,
 button {
 	flex: 1;
 }
@@ -51,6 +53,14 @@ button {
 .container,
 .buttons {
 	gap: 4px;
+}
+
+.outer-container {
+	gap: 16px;
+}
+
+.ac-ce {
+	gap: 105px;
 }
 
 body {
@@ -65,16 +75,16 @@ button {
 }
 
 .main {
-	gap: 12px;
-	height: 350px;
+	gap: 24px;
+	height: 370px;
 	width: 225px;
 	padding: 12px;
+	border-radius: 30px;
 }
 
-.main,
-.display-wrapper,
-button {
-	border-radius: 4px;
+.display,
+.display-wrapper {
+	border-radius: 50px;
 }
 
 .main,
@@ -91,7 +101,7 @@ button {
 	text-wrap: nowrap;
 	overflow: clip;
 	height: 50px;
-	padding: 12px;
+	padding-right: 12px;
 	font-size: 20px;
 	color : hsl(220, 15%, 20%);
 	background-color: hsl(45, 20%, 90%);
@@ -102,6 +112,7 @@ button {
 	background-color: hsl(0, 0%, 88%);
 	border-color: hsl(45, 10%, 78%);
 	font-size: 16px;
+	border-radius: 50px;
 }
 
 #ac,
@@ -123,5 +134,6 @@ button {
 .copyright {
 	font-family: Inter, monospace;
 	font-size: 9.5px;
+	padding-right: 4px;
 	color: hsl(0, 0%, 88%);
 }

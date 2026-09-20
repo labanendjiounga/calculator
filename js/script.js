@@ -30,51 +30,63 @@ function operate(operator, firstNumber, secondNumber) {
     case "-":
       result = String(subtract(a, b));
       break;
-    case "*":
+    case "x":
       result = String(multiply(a, b));
       break;
-    case "/":
+    case "÷":
       if(b == 0) {
         result = "Math Error";
       } else {
         result = String(divide(a, b));
       }
   }
+  console.log(`result1: ${result}`);
 
   // Handling results with long decimals
   if(result != "Math Error") {
     if(result.includes(".")) {
-      let decimalPart = result.slice(result.indexOf(".") + 1);
-      console.log(`decimalPart: ${decimalPart}`);
-      if(decimalPart.length >= 10) {
-        if(result.includes("e")) {
+      const wholes = result.slice(0, result.indexOf("."));
+      const decimals = result.slice(result.indexOf(".") + 1);
+
+      console.log(`result2: ${result}`);
+      console.log(`wholes: ${wholes}`);
+      console.log(`decimals: ${decimals}`);
+
+      if(result.includes("e")) {
+        if(decimals.length > 10) {
           result = String(Number(result).toExponential(5));
-        } else {
-          result = String(Number(result).toFixed(5));
+          return result;
         }
-        console.log(`result: ${result}`);
+      } 
+      if(wholes.length == 1 && decimals.length > 17) {
+        result = String(Number(result).toFixed(1));
       }
-    } else {
-      if(result.length > 10) {
+      if(wholes.length > 17 && decimals.length == 1) {
         result = String(Number(result).toExponential(5));
       }
-    }  
+    } else {
+      if(result.length > 19) {
+        result = String(Number(result).toExponential(5));
+      }
+    } 
   }
-  console.log(`result: ${result}`);
+
   return result;
 }
 
 function updateFirstNumber(input) {
-  if(firstNumber == "0") firstNumber = "";
+  if(firstNumber == "0" && input != ".") firstNumber = "";
+  if(firstNumber.includes(".") && input == ".") return;
   firstNumber += input;
   updateDisplay(firstNumber);
   console.log(`firstNumber: ${firstNumber}`);
 }
 
 function updateSecondNumber(input) {
-  if(secondNumber == "0") secondNumber = "";
+  if(secondNumber == "0" && input != ".") secondNumber = "";
+  if(secondNumber.includes(".") && input == ".") return;
   secondNumber += input;
-  updateDisplay(secondNumber);
+  updateDisplay(`${firstNumber} ${operator} ${secondNumber}`);
   console.log(`secondNumber: ${secondNumber}`);
 }
 
@@ -103,28 +115,26 @@ function handleDigits(input) {
 
 function handleSymbols(input) {
   if(isMathError()) return;
+  if(getDisplay() == "") return;
   
   if((!operator && !firstNumber && !secondNumber &&
-    getDisplay() != "0" && getDisplay() != "Math Error")) {
+    getDisplay() != "0" || getDisplay() == "0" && getDisplay() != "Math Error")) {
     firstNumber = getDisplay();
+    console.log(`getDisplay: ${getDisplay()}`);
     console.log(`firstNumber: ${firstNumber}`);
     console.log(`operator: ${operator}`);
   }
 
   if(operator && firstNumber && secondNumber) {
     firstNumber = operate(operator, firstNumber, secondNumber);
-    updateDisplay(firstNumber);
+    updateDisplay(`${firstNumber}`);
     secondNumber = "";
   }
 
-  if(input == "÷") {
-    operator = "/";
-  } else if(input == "x") {
-    operator = "*";
-  } else {
-    operator = input;
-  }
+  operator = input;
   console.log(`operator: ${operator}`);
+  console.log(`firstNumber: ${firstNumber}`);
+  updateDisplay(`${firstNumber} ${operator}`);
 }
 
 function handleEquals() {
@@ -141,10 +151,45 @@ function handleEquals() {
 }
 
 function clearAll() {
-  updateDisplay("0");
+  updateDisplay("");
   operator = "";
   firstNumber = "";
   secondNumber = "";
+}
+
+function handleBackSpace(input) {
+  if(isMathError()) return;
+  
+  if(getDisplay() == "0") {
+    updateDisplay("");
+  }
+
+  if(getDisplay() && !operator && !firstNumber && !secondNumber) {
+    const array = getDisplay().split("");
+    array.splice(-1, 1);
+    updateDisplay(array.join(""));
+  }
+
+  if(firstNumber && !operator && !secondNumber) {
+    const array = firstNumber.split("");
+    array.splice(-1, 1);
+    firstNumber = array.join("");
+    console.log(firstNumber);
+    updateDisplay(firstNumber);
+  }
+
+  if(firstNumber && operator && !secondNumber) {
+    operator = ""
+    updateDisplay(firstNumber);
+  }
+
+  if(firstNumber && operator && secondNumber) {
+    const array = secondNumber.split("");
+    array.splice(-1, 1);
+    secondNumber = array.join("");
+    console.log(secondNumber);
+    updateDisplay(`${firstNumber} ${operator} ${secondNumber}`);
+  }
 }
 
 function isMathError() {
@@ -161,12 +206,11 @@ buttons.forEach(button => {
     const input = e.target.textContent;
 
     if(input == "=") return handleEquals();
-    if(input == "CA") return clearAll();
-    if(input == "CE") return;
-    if(input == ".") return;
+    if(input == "AC") return clearAll();
+    if(input == "CE") return handleBackSpace(input);
 
     if("+-x÷".includes(input)) return handleSymbols(input);
-    if("0123456789".includes(input)) return handleDigits(input);
+    if(".0123456789".includes(input)) return handleDigits(input);
     
   });
 });

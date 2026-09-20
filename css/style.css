@@ -91,7 +91,7 @@ button {
 	text-wrap: nowrap;
 	overflow: clip;
 	height: 50px;
-	padding: 8px;
+	padding: 12px;
 	font-size: 20px;
 	color : hsl(220, 15%, 20%);
 	background-color: hsl(45, 20%, 90%);
@@ -101,7 +101,7 @@ button {
 button {
 	background-color: hsl(0, 0%, 88%);
 	border-color: hsl(45, 10%, 78%);
-	font-size: 14px;
+	font-size: 16px;
 }
 
 #ac,

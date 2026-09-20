@@ -23,6 +23,10 @@ function operate(operator, firstNumber, secondNumber) {
   const b = +secondNumber;
   let result = "";
   
+  if(firstNumber == "." || secondNumber == ".") {
+    return result = "Math Error"; // Can't operate if one of the operands is only a dot.
+  }
+  
   switch(operator) {
     case "+":
       result = String(add(a, b));
@@ -42,36 +46,53 @@ function operate(operator, firstNumber, secondNumber) {
   }
   console.log(`result1: ${result}`);
 
-  // Handling results with long decimals
+  // Handle results with long decimal
   if(result != "Math Error") {
     if(result.includes(".")) {
-      const wholes = result.slice(0, result.indexOf("."));
-      const decimals = result.slice(result.indexOf(".") + 1);
-
-      console.log(`result2: ${result}`);
-      console.log(`wholes: ${wholes}`);
-      console.log(`decimals: ${decimals}`);
-
-      if(result.includes("e")) {
-        if(decimals.length > 10) {
-          result = String(Number(result).toExponential(5));
-          return result;
-        }
-      } 
-      if(wholes.length == 1 && decimals.length > 17) {
-        result = String(Number(result).toFixed(1));
-      }
-      if(wholes.length > 17 && decimals.length == 1) {
-        result = String(Number(result).toExponential(5));
-      }
+      result = roundResultsWithLongDecimals(result);
     } else {
-      if(result.length > 19) {
-        result = String(Number(result).toExponential(5));
+      if(result.length > 14) {
+        result = roundLongInteger(result);
       }
     } 
   }
 
   return result;
+}
+
+function getIntegerAndDecimalParts(string) {
+  const integerPart = string.slice(0, string.indexOf("."));
+  const decimalPart = string.slice(string.indexOf(".") + 1);
+
+  console.log(`integer: ${integerPart}`);
+  console.log(`decimal: ${decimalPart}`);
+
+  return [integerPart, decimalPart];
+}
+
+function roundResultsWithLongDecimals(result) {
+  let integerPart = "";
+  let decimalPart = "";
+  [integerPart, decimalPart] = getIntegerAndDecimalParts(result);
+
+  if(result.includes("e")) {
+    if(decimalPart.length > 7) {
+      return String(Number(result).toExponential(5));
+    }
+  }
+
+  let roundedResult = "";
+  if(decimalPart.length > 7) {
+    roundedResult = String(Number(result).toFixed(5));
+    if(integerPart.length > 7) {
+      roundedResult = roundLongInteger(roundedResult);
+    }
+  }
+  return roundedResult;
+}
+
+function roundLongInteger(result) {
+  return String(Number(result).toExponential(5));
 }
 
 function updateFirstNumber(input) {
@@ -102,23 +123,25 @@ function getDisplay() {
     .textContent;
 }
 
-function handleDigits(input) {
+function handleDigitsAndDot(input) {
   if(isMathError()) return;
   
-  if(!operator || !firstNumber) {
+  if(!operator) {
     updateFirstNumber(input);
-    operator = "";
   } else {
     updateSecondNumber(input);
   }
 }
 
-function handleSymbols(input) {
+function handleOperators(input) {
   if(isMathError()) return;
-  if(getDisplay() == "") return;
   
-  if((!operator && !firstNumber && !secondNumber &&
-    getDisplay() != "0" || getDisplay() == "0" && getDisplay() != "Math Error")) {
+  if(!operator && !firstNumber && !secondNumber && getDisplay() != "Math Error") {
+    // Then the current display is the previous operation's result.
+    // Affect it to firstNumber.
+    // This gives the user the opportunity to perform a new operation, if they want to,
+    // using this value as firstNumber.
+    // See the comment inside the handleCE function.
     firstNumber = getDisplay();
     console.log(`getDisplay: ${getDisplay()}`);
     console.log(`firstNumber: ${firstNumber}`);
@@ -126,8 +149,26 @@ function handleSymbols(input) {
   }
 
   if(operator && firstNumber && secondNumber) {
-    firstNumber = operate(operator, firstNumber, secondNumber);
-    updateDisplay(`${firstNumber}`);
+    let result = operate(operator, firstNumber, secondNumber);
+    if(result == "Math Error") return updateDisplay(result);
+    if(result.includes(".")) {
+      result = roundResultsWithLongDecimals(result);
+    } else {
+      if(result.length > 14) {
+        result = roundLongInteger(result);
+      }
+    }
+    firstNumber = result;
+    console.log(`firstNumber line 162: ${firstNumber}`);
+    
+    updateDisplay(firstNumber);
+    // Operator is currently assigned.
+    // So if secondNumber isn't reinitialized here and now,
+    // then the next time the user hits a digit,
+    // that digits will be added to the end of the previous value of secondNumber.
+    // You don't want. You do want secondNumber to start fresh with zero digit inside.
+    // Remember that secondNumber is a string ? Yes.
+    // So go ahead and reinitialize it now. OK! Good!
     secondNumber = "";
   }
 
@@ -142,6 +183,7 @@ function handleEquals() {
   if(!secondNumber) return;
   
   updateDisplay(operate(operator, firstNumber, secondNumber));
+  
   operator = "";
   firstNumber = "";
   secondNumber = "";
@@ -150,31 +192,31 @@ function handleEquals() {
   console.log(`secondNumber: ${secondNumber}`);
 }
 
-function clearAll() {
-  updateDisplay("");
+function handleAC() {
+  updateDisplay("0");
   operator = "";
   firstNumber = "";
   secondNumber = "";
 }
 
-function handleBackSpace(input) {
+function handleCE(input) {
   if(isMathError()) return;
   
-  if(getDisplay() == "0") {
-    updateDisplay("");
-  }
-
-  if(getDisplay() && !operator && !firstNumber && !secondNumber) {
-    const array = getDisplay().split("");
-    array.splice(-1, 1);
-    updateDisplay(array.join(""));
+  if(!operator && !firstNumber && !secondNumber && getDisplay() != "Math Error") {
+    // Then the current display is the previous operation's result.
+    // So it mustn't be altered.
+    // Instead, AC or hits an operator to start a new operation
+    // with the current display as the first number value.
+    // See the comment inside the handleOperators function.
+    return;
   }
 
   if(firstNumber && !operator && !secondNumber) {
     const array = firstNumber.split("");
     array.splice(-1, 1);
     firstNumber = array.join("");
-    console.log(firstNumber);
+    console.log(`firstNumber: ${firstNumber}`);
+    if(!firstNumber) return updateDisplay("0"); // The display mustn't be empty.
     updateDisplay(firstNumber);
   }
 
@@ -206,11 +248,10 @@ buttons.forEach(button => {
     const input = e.target.textContent;
 
     if(input == "=") return handleEquals();
-    if(input == "AC") return clearAll();
-    if(input == "CE") return handleBackSpace(input);
+    if(input == "AC") return handleAC();
+    if(input == "CE") return handleCE(input);
 
-    if("+-x÷".includes(input)) return handleSymbols(input);
-    if(".0123456789".includes(input)) return handleDigits(input);
-    
+    if("+-x÷".includes(input)) return handleOperators(input);
+    if("0123456789.".includes(input)) return handleDigitsAndDot(input); 
   });
 });

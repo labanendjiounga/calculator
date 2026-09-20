@@ -156,7 +156,7 @@ function handleDigitsAndDot(input) {
 
 function handleOperators(input) {
   if(isMathError()) return;
-  if(firstNumber == "0." || secondNumber == "0.") return;
+  if(firstNumber.at(-1) == "." || secondNumber.at(-1) == ".") return;
   
   if(!operator && !firstNumber && !secondNumber && getDisplay() != "Math Error") {
     // Then the current display is the previous operation's result.
@@ -198,6 +198,7 @@ function handleOperators(input) {
 function handleEquals() {
   if(isMathError()) return;
   if(!secondNumber) return;
+  if(secondNumber.at(-1) == ".") return;
   
   updateDisplay(operate(operator, firstNumber, secondNumber));
 
